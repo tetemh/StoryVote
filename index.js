@@ -3,10 +3,9 @@ const fs = require("fs");
 const fetch = require("cross-fetch");
 const moment = require('moment');
 const prefix = '%sv';
-// Chargez le fichier JSON
-const users = JSON.parse(fs.readFileSync("users.json"));
+const dotenv = require('dotenv').config();
 
-// Créez un client Discord
+const users = JSON.parse(fs.readFileSync("users.json"));
 const client = new Discord.Client({
     intents: [
         Discord.GatewayIntentBits.Guilds,
@@ -47,7 +46,6 @@ const sendMessage = (user, vote) => {
     }
 };
 
-// Définissez une fonction pour boucler sur les lignes du fichier JSON et faire une requête GET pour chacune
 const loopOverUsers = async () => {
     for (const user of users) {
         const vote = await getVote(user.name);
@@ -58,7 +56,7 @@ const loopOverUsers = async () => {
 // Définissez une fonction pour exécuter le bot
 const runBot = async () => {
     setInterval(loopOverUsers, 5000);
-    client.login('MTEzNjAyNjM3NDIwMTY4MDAyMw.Gnen-z.1ejKAk_4-jU_SQjyM20z2y6FVnU7fAjUL6xkws');
+    client.login(process.env.TOKEN);
 };
 
 runBot();
@@ -68,7 +66,7 @@ client.on(Discord.Events.ClientReady, () => {
 })
 
 client.on(Discord.Events.MessageCreate, message => {
-    if (!message.author.bot) {
+    if (!message.author.bot && message.content.startsWith(process.env.PREFIX)) {
         let args = message.content.split(' ')
         if (args[1] == 'notifme') {
             fs.readFile('users.json', (err, data) => {
